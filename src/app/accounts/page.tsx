@@ -23,9 +23,6 @@ export default function AccountsSection() {
         <AccountItem balance={0} name="Account 1" type="SAVINGS" />
         <AccountItem balance={100} name="Account 2" type="LOAN" />
         <AccountItem balance={-100} name="Account 3" type="CARD" />
-        <AccountItem balance={0.99} name="Account 1" type="SAVINGS" />
-        <AccountItem balance={100.69} name="Account 2" type="LOAN" />
-        <AccountItem balance={-100.1} name="Account 3" type="CARD" />
       </div>
     </>
   );
