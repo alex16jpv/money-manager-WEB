@@ -1,8 +1,27 @@
-import React from "react";
+"use client";
+
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import AccountItem from "./accountItem";
 
-export default function AccountsSection() {
+export default function AccountsSection({
+  isFromDashboard = false,
+}: {
+  isFromDashboard?: boolean;
+}) {
+  const [accounts, setAccounts]: [any[], any] = useState([]);
+  useEffect(() => {
+    const url = new URL(`${process.env.NEXT_PUBLIC_API_URL}/accounts`);
+    if (isFromDashboard) {
+      url.searchParams.append("limit", "3");
+    }
+    fetch(url)
+      .then((response) => response.json())
+      .then((data) => {
+        setAccounts(data);
+      });
+  }, [isFromDashboard]);
+
   return (
     <>
       <div className="flex items-center gap-4">
@@ -20,9 +39,14 @@ export default function AccountsSection() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <AccountItem balance={0} name="Account 1" type="SAVINGS" />
-        <AccountItem balance={100} name="Account 2" type="LOAN" />
-        <AccountItem balance={-100} name="Account 3" type="CARD" />
+        {accounts.map((account: any) => (
+          <AccountItem
+            key={account._id}
+            balance={account.balance}
+            name={account.name}
+            type={account.type}
+          />
+        ))}
       </div>
     </>
   );

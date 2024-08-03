@@ -1,8 +1,48 @@
-import React from "react";
+"use client";
+
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import TransactionItem from "./transactionItem";
 
-export default function TransactionsSection() {
+function formatDate(dateString: string): string {
+  const date = new Date(dateString);
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  const year = date.getFullYear();
+  return `${month}-${day}-${year}`;
+}
+
+function groupByDate(transactions: any[]) {
+  return transactions.reduce((acc, transaction) => {
+    const formattedDate = formatDate(transaction.date);
+    if (!acc[formattedDate]) {
+      acc[formattedDate] = [];
+    }
+    acc[formattedDate].push(transaction);
+    return acc;
+  }, {});
+}
+
+export default function TransactionsSection({
+  isFromDashboard = false,
+}: {
+  isFromDashboard?: boolean;
+}) {
+  const [transactions, setTransactions]: [any[], any] = useState([]);
+  useEffect(() => {
+    const url = new URL(`${process.env.NEXT_PUBLIC_API_URL}/transactions`);
+    if (isFromDashboard) {
+      url.searchParams.append("limit", "10");
+    } else {
+      url.searchParams.append("limit", "25");
+    }
+    fetch(url)
+      .then((response) => response.json())
+      .then((data) => {
+        setTransactions(Object.entries(groupByDate(data)));
+      });
+  }, [isFromDashboard]);
+
   return (
     <>
       <div className="flex items-center gap-4">
@@ -21,33 +61,24 @@ export default function TransactionsSection() {
 
       <div className="border shadow-sm rounded-lg">
         <div className="grid gap-4 p-4">
-          <div className="grid gap-2">
-            <div className="font-semibold text-lg">June 27, 2023</div>
-            <div className="grid gap-2">
-              <TransactionItem
-                amount={100}
-                type="INCOME"
-                category="Test Category"
-                description="Test Description"
-                to_account_name="Test Account"
-              />
-              <TransactionItem
-                amount={100}
-                type="EXPENSE"
-                category="Test Category"
-                description="Test Description"
-                from_account_name="Test Account"
-              />
-              <TransactionItem
-                amount={100}
-                type="TRANSFER"
-                category="Test Category"
-                description="Test Description"
-                from_account_name="Test Account"
-                to_account_name="Test Account"
-              />
+          {transactions.map(([date, trxs]: [string, any[]]) => (
+            <div className="grid gap-2" key={date}>
+              <div className="font-semibold text-lg">{date}</div>
+              <div className="grid gap-2">
+                {trxs.map((transaction: any) => (
+                  <TransactionItem
+                    key={transaction._id}
+                    amount={transaction.amount}
+                    type={transaction.type}
+                    category={transaction.category}
+                    description={transaction.description}
+                    to_account_name={transaction.to_account_name}
+                    from_account_name={transaction.from_account_name}
+                  />
+                ))}
+              </div>
             </div>
-          </div>
+          ))}
         </div>
       </div>
     </>
