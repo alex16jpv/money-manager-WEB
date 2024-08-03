@@ -4,8 +4,8 @@ import Transactions from "./transactions/page";
 export default function Home() {
   return (
     <>
-      <Accounts isFromDashboard={true} />
-      <Transactions isFromDashboard={true} />
+      <Accounts />
+      <Transactions />
     </>
   );
 }

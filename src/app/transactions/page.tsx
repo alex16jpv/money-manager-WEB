@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import TransactionItem from "./transactionItem";
+import { usePathname } from "next/navigation";
 
 function formatDate(dateString: string): string {
   const date = new Date(dateString);
@@ -23,15 +24,12 @@ function groupByDate(transactions: any[]) {
   }, {});
 }
 
-export default function TransactionsSection({
-  isFromDashboard = false,
-}: {
-  isFromDashboard?: boolean;
-}) {
+export default function TransactionsSection() {
   const [transactions, setTransactions]: [any[], any] = useState([]);
+  const pathname = usePathname();
   useEffect(() => {
     const url = new URL(`${process.env.NEXT_PUBLIC_API_URL}/transactions`);
-    if (isFromDashboard) {
+    if (pathname === "/") {
       url.searchParams.append("limit", "10");
     } else {
       url.searchParams.append("limit", "25");
@@ -41,7 +39,7 @@ export default function TransactionsSection({
       .then((data) => {
         setTransactions(Object.entries(groupByDate(data)));
       });
-  }, [isFromDashboard]);
+  }, [pathname]);
 
   return (
     <>

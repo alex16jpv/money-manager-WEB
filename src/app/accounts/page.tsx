@@ -3,16 +3,15 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import AccountItem from "./accountItem";
+import { usePathname } from "next/navigation";
 
-export default function AccountsSection({
-  isFromDashboard = false,
-}: {
-  isFromDashboard?: boolean;
-}) {
+export default function AccountsSection() {
   const [accounts, setAccounts]: [any[], any] = useState([]);
+  const pathname = usePathname();
+
   useEffect(() => {
     const url = new URL(`${process.env.NEXT_PUBLIC_API_URL}/accounts`);
-    if (isFromDashboard) {
+    if (pathname === "/") {
       url.searchParams.append("limit", "3");
     }
     fetch(url)
@@ -20,7 +19,7 @@ export default function AccountsSection({
       .then((data) => {
         setAccounts(data);
       });
-  }, [isFromDashboard]);
+  }, [pathname]);
 
   return (
     <>
